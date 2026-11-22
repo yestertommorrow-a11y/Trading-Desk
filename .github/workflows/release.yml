@@ -1,0 +1,32 @@
+name: Release
+
+# Push a version tag (for example: git tag v1.0.1 && git push origin v1.0.1) to publish
+# Strikebook-windows.zip. The hosted page and README link to
+# releases/latest/download/Strikebook-windows.zip, so the newest release is always the download.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish the Windows ZIP
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      # .gitattributes leaves out development files and gives the .cmd launcher CRLF endings.
+      - name: Build archive
+        run: git archive --format=zip --prefix=Strikebook/ -o Strikebook-windows.zip "$GITHUB_REF_NAME"
+      - name: Check archive
+        run: |
+          unzip -l Strikebook-windows.zip
+          unzip -p Strikebook-windows.zip "Strikebook/Start Strikebook.cmd" | grep -q $'\r$'
+          unzip -l Strikebook-windows.zip | grep -q 'Strikebook/dist/vendor/lightweight-charts.standalone.production.mjs'
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" Strikebook-windows.zip --title "Strikebook $GITHUB_REF_NAME" --generate-notes

@@ -1,0 +1,13 @@
+# Windows batch files need CRLF line endings, including in release ZIPs built on Linux.
+*.cmd text eol=crlf
+
+# Development-only files are left out of release archives (git archive).
+.github/            export-ignore
+.gitattributes      export-ignore
+.gitignore          export-ignore
+*.test.mjs          export-ignore
+test_patterns.py    export-ignore
+build-coverage.py   export-ignore
+CONTRIBUTING.md     export-ignore
+REVIEW_BRIEF.md     export-ignore
+COPY_MANIFEST.json  export-ignore

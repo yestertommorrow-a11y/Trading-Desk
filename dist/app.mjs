@@ -15,6 +15,18 @@ const periods=new Set(['1M','3M','6M','1Y','2Y','5Y']);
 const detectorId=/^(?:doji|hammer|engulfing|CDL[A-Z0-9]+)$/;
 const onLocalPage=isLoopbackOrigin(location.origin);
 const defaultLoopbackOrigin='http://127.0.0.1:8765';
+const repoUrl='https://github.com/yestertommorrow-a11y/Trading-Desk';
+const launcherZipUrl=`${repoUrl}/releases/latest/download/Strikebook-windows.zip`;
+const setupGuideUrl=`${repoUrl}#live-data-on-your-pc`;
+const externalLink=(href,text)=>`<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+const hostedSetup=`<p>Live data comes from Strikebook running on your own Windows PC, using OpenBB and its data providers. This website only displays it; your data and provider settings stay on your PC.</p>
+ <ol class="setup-steps">
+  <li>${externalLink(launcherZipUrl,'Download Strikebook for Windows')} and extract the ZIP.</li>
+  <li>Install Python 3.10 or newer, then run <code>python -m pip install openbb yfinance</code>.</li>
+  <li>Double-click <b>Start Strikebook.cmd</b> and leave its window open.</li>
+  <li>Choose <b>Connect this PC</b> below. Allow local network access if Chrome or Edge asks.</li>
+ </ol>
+ <p class="note">If the launcher prints an address other than 127.0.0.1:8765, enter it and choose <b>Connect bridge</b>. Step-by-step help: ${externalLink(setupGuideUrl,'live data setup guide')}.</p>`;
 const localDashboardLink=`<a class="btn" href="${defaultLoopbackOrigin}/" target="_blank" rel="noopener noreferrer">Open local dashboard</a>`;
 const optional={fundamentals:['profile','financials','dividends','fund','holdings','balance','cash','ratios','filings'],events:['profile','dividends','earnings','earnings-calendar','news']};
 const symbolRe=/^[A-Z0-9][A-Z0-9.\-/^=]{0,23}$/;
@@ -50,7 +62,7 @@ function renderNotice(){
  status.classList.toggle('offline',offline);
  label.textContent=state.mode==='checking'?'Checking OpenBB':state.mode==='sample'?'Sample mode':offline?'OpenBB offline':'OpenBB';
  if(state.mode==='sample'){
-  const instructions=onLocalPage?'Choose Data connection to use OpenBB.':'Run Start Strikebook.cmd, then choose Data connection to use OpenBB.';
+  const instructions=onLocalPage?'Choose Data connection to use OpenBB.':'For live data, run Strikebook on your PC: choose Data connection for the download and steps.';
   $('notice').innerHTML=`<div class="notice"><span class="notice-dot"></span><span><b>Sample mode.</b> Simulated prices and options for six symbols. ${instructions}</span><button type="button" data-action="connection">Data connection</button></div>`;
  }else if(offline){
   const instructions=state.bridgeState?.error?.message||'Check that Start Strikebook.cmd is running, then reconnect.';
@@ -226,7 +238,9 @@ async function checkBridge(origin,signal){
  }
  if(status.ok&&status.data&&typeof status.data.backend==='string')return status;
  if(onLocalPage||isLoopbackOrigin(origin)){
-  return {ok:false,error:{message:'Run the updated Start Strikebook.cmd and check the address it prints. If the hosted view is blocked, open the local dashboard in your browser.'}};
+  return {ok:false,error:{message:onLocalPage
+   ?'The local bridge did not answer. Check that Start Strikebook.cmd is still running, then reconnect.'
+   :'Strikebook isn’t answering at this address. Check that Start Strikebook.cmd is running and enter the address it prints. If your browser blocks the connection, use Open local dashboard instead.'}};
  }
  return {ok:false,error:{message:'This address did not return a Strikebook bridge status. Check the HTTPS address and its browser access settings.'}};
 }
@@ -293,10 +307,10 @@ function savePatternSelection(form){
 function connection(){
  connectionAttempt?.abort();
  const instructions=onLocalPage
-  ?'Leave the address blank to use the bridge started by this launcher.'
-  :'Run the updated Start Strikebook.cmd on this PC. Use the address it prints and allow loopback access if your browser asks. You can also use a compatible HTTPS bridge.';
+  ?'<p>Leave the address blank to use the bridge started by this launcher.</p>'
+  :hostedSetup;
  const placeholder=onLocalPage?'This dashboard’s address':defaultLoopbackOrigin;
- openDialog('Data connection',`<p>${instructions}</p>
+ openDialog('Data connection',`${instructions}
   ${state.bridgeState?.error?.message?`<p class="negative">${esc(state.bridgeState.error.message)}</p>`:''}
   <form id="bridge-form">
    <label class="control" for="bridge-origin">Bridge address<input class="field text-field" id="bridge-origin" type="url" placeholder="${placeholder}" value="${esc(state.origin)}"></label>

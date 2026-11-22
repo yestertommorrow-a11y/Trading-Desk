@@ -27,6 +27,8 @@ python -B server.py --port 0 --open-browser
 
 Without OpenBB, choose **Data connection → Use sample mode**. Sample mode uses six simulated symbols (SPY, QQQ, AAPL, NVDA, MSFT, IWM), which is enough to work on most of the interface.
 
+**Hosting your own copy.** A hosted page can reach the launcher only from the origin the launcher allows. That origin is set by `STRIKEBOOK_HOSTED_ORIGIN` in `Start Strikebook.cmd` and passed to `server.py --cors-origin`. If you publish a fork, for example to your own GitHub Pages, change it to your site's origin (scheme and host only, such as `https://your-name.github.io`). Also update `repoUrl` in `dist/app.mjs`, which the Data connection dialog uses for its download and setup links.
+
 After editing files in `dist/`, hard-refresh the page (Ctrl+Shift+R). The server sends no cache headers, so the browser can keep old modules.
 
 ## Project layout

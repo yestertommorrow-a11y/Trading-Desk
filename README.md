@@ -4,13 +4,36 @@
 
 Strikebook is a stock, ETF and listed-options research terminal inspired by Market Chameleon's public workflows. It has an original interface and uses OpenBB and its configured providers for market data.
 
-## Start with OpenBB on Windows
+## Try it online
 
-1. Extract the ZIP to a normal local folder.
-2. Double-click **Start Strikebook.cmd**. Leave the console window open while you use the browser. It uses `http://127.0.0.1:8765/`, or a free port if 8765 is taken.
-3. Search by ticker or company/fund name. Start with **AAPL** for a stock or **QQQ** for an ETF with verified chains. Open **Data & methodology** for provider and date details.
+The hosted Strikebook is at **[yestertommorrow-a11y.github.io/Trading-Desk](https://yestertommorrow-a11y.github.io/Trading-Desk/)**. It opens in **sample mode**, with simulated prices and options for six symbols, so you can try every tool without installing anything. It is redeployed from `dist/` on every push to `main`. For real market data, follow [Live data on your PC](#live-data-on-your-pc).
 
-The hosted Strikebook is at **[yestertommorrow-a11y.github.io/Trading-Desk](https://yestertommorrow-a11y.github.io/Trading-Desk/)**. It opens in sample mode and is redeployed from `dist/` on every push to `main`. To use it with live data in Chrome or Edge, keep the updated launcher running and select **Data connection → Connect this PC** on the site. The launcher listens on `http://127.0.0.1:8765`, which is what **Connect this PC** checks. If port 8765 is already in use, it picks a free port and says so; enter the address it prints and select **Connect bridge**. Allow loopback access if your browser asks. If your browser blocks the connection, use the local dashboard opened by the launcher.
+## Live data on your PC
+
+The hosted site has no data server. Live quotes, chains and history come from Strikebook running on **your own Windows PC**, which fetches them through OpenBB and its providers. The website only displays what your PC sends it. Your provider settings and credentials never leave your PC, and nothing passes through GitHub.
+
+1. **Download** [Strikebook for Windows](https://github.com/yestertommorrow-a11y/Trading-Desk/releases/latest/download/Strikebook-windows.zip) from the [latest release](https://github.com/yestertommorrow-a11y/Trading-Desk/releases/latest) and extract it to a normal folder, such as `Documents\Strikebook`.
+2. **Install Python 3.10 or newer** from [python.org](https://www.python.org/downloads/windows/). In the installer, tick **Add python.exe to PATH**.
+3. **Install OpenBB** and the Yahoo Finance fallback. Open PowerShell and run:
+
+   ```powershell
+   python -m pip install openbb yfinance
+   ```
+
+   The `openbb` package includes the OpenBB CLI and the Cboe, Nasdaq and SEC providers Strikebook uses. It was tested with OpenBB 5.0.0.
+4. **Start Strikebook.** Double-click **Start Strikebook.cmd** in the extracted folder and leave the console window open. It prints `Strikebook · http://127.0.0.1:8765/` and opens a local dashboard with live data, so you can stop here. Search by ticker or company or fund name; **AAPL** (stock) and **QQQ** (ETF) have verified chains. **Data & methodology** shows each provider and timestamp. The first start can take a minute while OpenBB loads.
+5. **To use the hosted site instead,** open [the hosted Strikebook](https://yestertommorrow-a11y.github.io/Trading-Desk/) in **Chrome or Edge** and choose **Data connection → Connect this PC**. If the browser asks to allow access to devices on your local network, choose **Allow**.
+
+**If it doesn't connect:**
+
+- **The launcher printed another port** (8765 was in use): enter that address, for example `http://127.0.0.1:52341`, and choose **Connect bridge**.
+- **"OpenBB CLI was not found on PATH":** close the window, reopen PowerShell, run `openbb --help` to check the install, then start the launcher again.
+- **The browser blocks the connection** (Safari, Firefox, or a managed Chrome or Edge): use the local dashboard the launcher opened. It has the same features.
+- **Behind a corporate network:** your administrator may block local network access or Python package installs.
+
+Other operating systems aren't packaged. On macOS or Linux, run `python3 -B server.py --port 8765 --fallback-port --open-browser --cors-origin https://yestertommorrow-a11y.github.io` from the extracted folder.
+
+### Advanced setup
 
 Python 3.10+ and the `openbb` CLI must be on PATH for provider mode. It was tested with Python 3.12, OpenBB v5.0.0, OpenBB CLI 2.0.1 and the Cboe, Nasdaq and SEC extensions. If you normally start OpenBB in a particular Python environment, activate that environment before running the launcher. To use another executable, set `OPTIONS_TERMINAL_CLI` or start the server with `--cli`:
 
@@ -79,7 +102,7 @@ All detectors use the same completed daily open, high, low and close prices for 
 
 When the default local OpenBB quote, history or chain providers fail, Strikebook can use the Yahoo Finance library already installed beside OpenBB. These responses are labeled **Yahoo Finance**. Explicit provider overrides and remote OpenBB configurations take precedence. The fallback includes available daily candles and option expirations, reports partially loaded chains, and preserves available source timestamps. Yahoo’s chain supplies no provider Greeks or consolidated quote timestamp.
 
-The private hosted interface starts in **Sample mode** with six simulated symbols. The local dashboard connects to OpenBB automatically when the bridge is available. In a supported browser, the hosted dashboard can fetch directly from the local launcher with browser permission. The launcher binds to `127.0.0.1` and permits browser access from its own origin and the exact Strikebook hosted origin. A compatible organizational HTTPS bridge must implement Strikebook’s `/api` response contract and allow requests from the hosted origin.
+The hosted interface starts in **Sample mode** with six simulated symbols. The local dashboard connects to OpenBB automatically when the bridge is available. In a supported browser, the hosted dashboard can fetch directly from the local launcher with browser permission. The launcher binds to `127.0.0.1` and permits browser access from its own origin and the exact Strikebook hosted origin. A compatible organizational HTTPS bridge must implement Strikebook’s `/api` response contract and allow requests from the hosted origin.
 
 Live requests were verified for delayed Cboe AAPL and QQQ chains, AAPL and SPY quotes and price history, SEC ticker search and filings, and SPY fund metrics and portfolio holdings from SEC N-PORT. A compatibility path addresses a known OpenBB Cboe 2.x whole-chain validation error by recovering contract identifiers through the same installed provider; it retains the original identifiers, reports skipped rows and flags possible adjusted series. Exchange, provider and plan coverage varies; each section shows missing or delayed data rather than substituting synthetic prices in provider mode. N-PORT is periodic disclosure, not current position data. Some endpoints, especially earnings, ratios, distributions and news, depend on Nasdaq responses which were not consistently usable during verification.
 

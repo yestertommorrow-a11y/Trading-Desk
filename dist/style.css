@@ -145,7 +145,7 @@ dialog{background:var(--surface);color:var(--ink);border:1px solid #3c4d63;borde
 }
 
 .candle-key.hammer::before {
-  content: "△";
+  content: "â–³";
   font-size: 10px;
 }
 
@@ -450,3 +450,4 @@ dialog{background:var(--surface);color:var(--ink);border:1px solid #3c4d63;borde
   font-size: 12px;
   overflow-wrap: anywhere;
 }
+.setup-steps{margin:0 0 10px;padding-left:20px;color:var(--sub);font-size:12px;line-height:1.55}.setup-steps li{margin-bottom:4px}.setup-steps code{font-size:11px;padding:1px 5px;border-radius:4px;background:#0b1118;border:1px solid var(--line);color:var(--ink);white-space:nowrap}.dialog-body a:not(.btn){color:var(--teal);text-underline-offset:3px}
