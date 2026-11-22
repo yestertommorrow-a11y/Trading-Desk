@@ -563,20 +563,19 @@ class Handler(SimpleHTTPRequestHandler):
         origin = self.headers.get("Origin")
         if origin is None:
             return self.headers.get("Sec-Fetch-Site") in {None, "none", "same-origin"}
-        return origin == f"http://{host}" or origin == self.server.cors_origin
+        return origin == f"http://{host}" or origin in self.server.cors_origins
 
     def cors_headers(self):
-        allowed = self.server.cors_origin
-        if allowed and self.headers.get("Origin") == allowed:
-            self.send_header("Access-Control-Allow-Origin", allowed)
+        origin = self.headers.get("Origin")
+        if origin in self.server.cors_origins:
+            self.send_header("Access-Control-Allow-Origin", origin)
             self.send_header("Vary", "Origin")
 
     def do_OPTIONS(self):
         host = self.check_host()
         if host is None:
             return
-        allowed = self.server.cors_origin
-        if not allowed or self.headers.get("Origin") != allowed:
+        if self.headers.get("Origin") not in self.server.cors_origins:
             self.send_error(HTTPStatus.FORBIDDEN)
             return
         if not urlsplit(self.path).path.startswith("/api/"):
@@ -633,6 +632,20 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(encoded)
 
 
+def parse_origins(value):
+    """Comma-separated hosted origins -> exact scheme://host[:port] strings. Paths are not allowed."""
+    origins = set()
+    for item in (value or "").split(","):
+        item = item.strip().rstrip("/")
+        if not item:
+            continue
+        parts = urlsplit(item)
+        if parts.scheme not in {"https", "http"} or not parts.netloc or parts.path or parts.query or parts.fragment:
+            raise SystemExit(f"--cors-origin: {item!r} must be an origin such as https://name.github.io (no path).")
+        origins.add(f"{parts.scheme}://{parts.netloc.lower()}")
+    return frozenset(origins)
+
+
 class TerminalServer(ThreadingHTTPServer):
     allow_reuse_address = os.name != "nt"
 
@@ -644,7 +657,7 @@ def main():
     parser.add_argument("--static", type=Path, default=Path(__file__).resolve().parent / "dist")
     parser.add_argument("--cli", default=os.environ.get("OPTIONS_TERMINAL_CLI", "openbb"))
     parser.add_argument("--timeout", type=float, default=45)
-    parser.add_argument("--cors-origin", default="")
+    parser.add_argument("--cors-origin", default="", help="Hosted origin(s) allowed to call /api, comma-separated, e.g. https://name.github.io.")
     parser.add_argument("--openbb-runtime", type=Path, help="Use a workspace OpenBB namespace created for a read-only installation.")
     parser.add_argument("--no-cboe-disk-cache", action="store_true", help="Keep Cboe's provider cache in memory through this service.")
     parser.add_argument("--open-browser", action="store_true", help="Open Strikebook in the default browser after startup.")
@@ -666,7 +679,7 @@ def main():
         server = TerminalServer(("127.0.0.1", 0), handler)
     with server:
         server.api = ResearchAPI(process, cboe_disk_cache=not (arguments.openbb_runtime or arguments.no_cboe_disk_cache))
-        server.cors_origin = arguments.cors_origin
+        server.cors_origins = parse_origins(arguments.cors_origin)
         url = f"http://127.0.0.1:{server.server_port}/"
         print(f"Strikebook · {url}", flush=True)
         if arguments.open_browser:

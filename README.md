@@ -6,7 +6,7 @@ Strikebook is a stock, ETF and listed-options research terminal inspired by Mark
 
 ## Try it online
 
-The hosted Strikebook is at **[yestertommorrow-a11y.github.io/Trading-Desk](https://yestertommorrow-a11y.github.io/Trading-Desk/)**. It opens in **sample mode**, with simulated prices and options for six symbols, so you can try every tool without installing anything. It is redeployed from `dist/` on every push to `main`. For real market data, follow [Live data on your PC](#live-data-on-your-pc).
+The hosted Strikebook is at **[yestertommorrow-a11y.github.io/Trading-Desk](https://yestertommorrow-a11y.github.io/Trading-Desk/)**. It opens in **sample mode**, with simulated prices and options for six symbols, so you can try every tool without installing anything. A mirror runs on Vercel at [trading-desk-ruby-one.vercel.app](https://trading-desk-ruby-one.vercel.app/). Both are redeployed from `dist/` on every push to `main`. For real market data, follow [Live data on your PC](#live-data-on-your-pc).
 
 ## Live data on your PC
 
@@ -31,7 +31,7 @@ The hosted site has no data server. Live quotes, chains and history come from St
 - **The browser blocks the connection** (Safari, Firefox, or a managed Chrome or Edge): use the local dashboard the launcher opened. It has the same features.
 - **Behind a corporate network:** your administrator may block local network access or Python package installs.
 
-Other operating systems aren't packaged. On macOS or Linux, run `python3 -B server.py --port 8765 --fallback-port --open-browser --cors-origin https://yestertommorrow-a11y.github.io` from the extracted folder.
+Other operating systems aren't packaged. On macOS or Linux, run `python3 -B server.py --port 8765 --fallback-port --open-browser --cors-origin https://yestertommorrow-a11y.github.io,https://trading-desk-ruby-one.vercel.app` from the extracted folder.
 
 ### Advanced setup
 

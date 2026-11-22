@@ -11,3 +11,4 @@ build-coverage.py   export-ignore
 CONTRIBUTING.md     export-ignore
 REVIEW_BRIEF.md     export-ignore
 COPY_MANIFEST.json  export-ignore
+vercel.json         export-ignore
