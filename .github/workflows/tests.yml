@@ -1,0 +1,48 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  javascript:
+    name: JavaScript (Node 24)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Check module syntax
+        run: for file in dist/*.mjs dist/vendor/*.mjs; do node --check "$file"; done
+      - name: Run tests
+        run: node --test analytics.test.mjs strategy.test.mjs positioning.test.mjs
+
+  python:
+    name: Python (3.13, TA-Lib)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: requirements-patterns.txt
+      # Prebuilt wheels include the TA-Lib C library, so the native parity tests run instead of skipping.
+      - name: Install TA-Lib
+        run: python -m pip install --only-binary=:all: -r requirements-patterns.txt
+      - name: Check module syntax
+        run: python -m py_compile server.py patterns.py yfinance_compat.py cboe_chain_compat.py build-coverage.py
+      - name: Run tests
+        run: python -B -m unittest -v test_patterns
