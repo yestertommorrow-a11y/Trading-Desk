@@ -592,6 +592,9 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET")
         if requested_headers:
             self.send_header("Access-Control-Allow-Headers", "Accept")
+        if self.headers.get("Access-Control-Request-Private-Network") == "true":
+            # Chromium's Private Network Access preflight; only reached for the allowed origin.
+            self.send_header("Access-Control-Allow-Private-Network", "true")
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
 
@@ -636,7 +639,8 @@ class TerminalServer(ThreadingHTTPServer):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--port", type=int, default=8765, help="Port to listen on; 0 picks a free port.")
+    parser.add_argument("--fallback-port", action="store_true", help="Use a free port if --port is unavailable.")
     parser.add_argument("--static", type=Path, default=Path(__file__).resolve().parent / "dist")
     parser.add_argument("--cli", default=os.environ.get("OPTIONS_TERMINAL_CLI", "openbb"))
     parser.add_argument("--timeout", type=float, default=45)
@@ -650,7 +654,17 @@ def main():
         runtime = str(arguments.openbb_runtime.resolve())
         env["PYTHONPATH"] = runtime + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
     process = OpenBBProcess(arguments.cli, env, arguments.timeout)
-    with TerminalServer(("127.0.0.1", arguments.port), partial(Handler, directory=arguments.static)) as server:
+    handler = partial(Handler, directory=arguments.static)
+    try:
+        server = TerminalServer(("127.0.0.1", arguments.port), handler)
+    except OSError as error:
+        # Port in use, or reserved by Windows (WinError 10013). The hosted page's
+        # "Connect this PC" only checks 8765, so fall back only when asked to.
+        if not arguments.fallback_port or arguments.port == 0:
+            raise
+        print(f"Port {arguments.port} is unavailable ({error.strerror or error}); using a free port instead.", flush=True)
+        server = TerminalServer(("127.0.0.1", 0), handler)
+    with server:
         server.api = ResearchAPI(process, cboe_disk_cache=not (arguments.openbb_runtime or arguments.no_cboe_disk_cache))
         server.cors_origin = arguments.cors_origin
         url = f"http://127.0.0.1:{server.server_port}/"

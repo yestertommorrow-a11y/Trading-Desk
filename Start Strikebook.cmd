@@ -9,7 +9,7 @@ where python >nul 2>&1
 if errorlevel 1 goto no_python
 where openbb >nul 2>&1
 if errorlevel 1 echo OpenBB CLI was not found on PATH. You can choose Sample mode under Data connection.
-python -B server.py --port 0 --open-browser --cors-origin "%STRIKEBOOK_HOSTED_ORIGIN%" --no-cboe-disk-cache %STRIKEBOOK_RUNTIME_ARGS%
+python -B server.py --port 8765 --fallback-port --open-browser --cors-origin "%STRIKEBOOK_HOSTED_ORIGIN%" --no-cboe-disk-cache %STRIKEBOOK_RUNTIME_ARGS%
 if errorlevel 1 pause
 exit /b
 :no_python

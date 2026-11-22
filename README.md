@@ -7,16 +7,18 @@ Strikebook is a stock, ETF and listed-options research terminal inspired by Mark
 ## Start with OpenBB on Windows
 
 1. Extract the ZIP to a normal local folder.
-2. Double-click **Start Strikebook.cmd**. Leave the console window open while you use the browser. It normally uses `http://127.0.0.1:8765/` and selects a free port if needed.
+2. Double-click **Start Strikebook.cmd**. Leave the console window open while you use the browser. It uses `http://127.0.0.1:8765/`, or a free port if 8765 is taken.
 3. Search by ticker or company/fund name. Start with **AAPL** for a stock or **QQQ** for an ETF with verified chains. Open **Data & methodology** for provider and date details.
 
-The hosted Strikebook is at **[yestertommorrow-a11y.github.io/Trading-Desk](https://yestertommorrow-a11y.github.io/Trading-Desk/)**. It opens in sample mode and is redeployed from `dist/` on every push to `main`. To use it with live data in Chrome or Edge, keep the updated launcher running and select **Data connection → Connect this PC** on the site. It checks `http://127.0.0.1:8765`. If the launcher prints a different port, enter that address and select **Connect bridge**. Allow loopback access if your browser asks. If your browser blocks the connection, use the local dashboard opened by the launcher.
+The hosted Strikebook is at **[yestertommorrow-a11y.github.io/Trading-Desk](https://yestertommorrow-a11y.github.io/Trading-Desk/)**. It opens in sample mode and is redeployed from `dist/` on every push to `main`. To use it with live data in Chrome or Edge, keep the updated launcher running and select **Data connection → Connect this PC** on the site. The launcher listens on `http://127.0.0.1:8765`, which is what **Connect this PC** checks. If port 8765 is already in use, it picks a free port and says so; enter the address it prints and select **Connect bridge**. Allow loopback access if your browser asks. If your browser blocks the connection, use the local dashboard opened by the launcher.
 
 Python 3.10+ and the `openbb` CLI must be on PATH for provider mode. It was tested with Python 3.12, OpenBB v5.0.0, OpenBB CLI 2.0.1 and the Cboe, Nasdaq and SEC extensions. If you normally start OpenBB in a particular Python environment, activate that environment before running the launcher. To use another executable, set `OPTIONS_TERMINAL_CLI` or start the server with `--cli`:
 
 ```powershell
-python -B server.py --port 0 --open-browser
+python -B server.py --port 8765 --fallback-port --open-browser
 ```
+
+`--port 0` always picks a free port. Without `--fallback-port`, the server stops if the port is unavailable.
 
 The bridge listens only on this computer. It uses the existing OpenBB CLI configuration, including supported server or spec settings, without writing provider credentials into the web UI. To use other routes or licensed providers, set an `OPTIONS_TERMINAL_<ENDPOINT>` environment variable to a comma-separated list of verified `command:provider` entries supported by your OpenBB installation. Use `OPTIONS_TERMINAL_CHAIN` for the chain, `OPTIONS_TERMINAL_QUOTE` for quotes, or `OPTIONS_TERMINAL_HISTORY` for daily bars. The route implementation and default provider order are in `server.py`. A first run can take longer while OpenBB initializes its extensions.
 
