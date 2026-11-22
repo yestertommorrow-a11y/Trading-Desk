@@ -103,6 +103,10 @@ These projects shaped which features Strikebook offers. Strikebook's code is its
 - [optionlab](https://github.com/rgaveiga/optionlab) by Roberto Gomes inspired the probability-of-profit estimate.
 - Open-source gamma exposure dashboards, such as those under the [gamma-exposure topic](https://github.com/topics/gamma-exposure) on GitHub, inspired the gamma exposure, gamma flip, call and put wall, and max pain views.
 
+## Contributing
+
+Bug reports and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests and the pull request process.
+
 ## License
 
 Strikebook is released under the [MIT License](LICENSE). The bundled Lightweight Charts library keeps its own Apache License 2.0.
