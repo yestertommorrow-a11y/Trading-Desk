@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c111b">
+  <meta name="description" content="An independent research workspace for equity and ETF options, powered by OpenBB.">
+  <title>Strikebook | Options Research</title>
+  <link rel="icon" href="./mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <a class="skip" href="#workspace">Skip to research</a>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Research navigation">
+      <a class="brand" href="#overview" aria-label="Strikebook overview"><img src="./mark.svg" width="35" height="35" alt=""><span>Strikebook<small>OPTIONS RESEARCH</small></span></a>
+      <div class="desk"><span class="desk-light"></span><span>Equity Derivatives</span><span class="desk-tag">DESK</span></div>
+      <nav id="navigation"></nav>
+      <section class="watch" aria-label="Watchlist"><div class="nav-label"><span>WATCHLIST</span><button class="icon-btn tiny" id="focus-search" type="button" title="Search for a ticker" aria-label="Search for a ticker">+</button></div><div id="watchlist"></div></section>
+      <div class="sidebar-bottom"><button type="button" class="nav-button" data-tab="methods"><span data-icon="info"></span>Data &amp; methodology</button><div class="provider"><b>OpenBB</b><span>Market data layer</span></div></div>
+    </aside>
+    <div class="primary">
+      <header class="topbar">
+        <button class="icon-btn mobile-menu" id="mobile-menu" aria-label="Toggle navigation" aria-expanded="false" type="button"><span data-icon="menu"></span></button>
+        <div class="crumb"><span>Research</span><span class="chevron">›</span><strong id="breadcrumb">Overview</strong></div>
+        <form class="search" id="search-form" role="search" autocomplete="off">
+          <span data-icon="search"></span><input id="symbol-search" name="symbol" placeholder="Search stocks or ETFs" aria-label="Search stocks or ETFs" aria-controls="search-results" aria-expanded="false" role="combobox" autocomplete="off" spellcheck="false"><kbd>/</kbd>
+          <div id="search-results" class="search-results" role="listbox" aria-label="Matching symbols" hidden></div>
+        </form>
+        <div class="top-actions"><button type="button" class="feed-chip" id="feed-button" title="Data connection and sample mode"><i></i><span id="feed-label">Checking OpenBB</span></button><button type="button" id="refresh" class="icon-btn refresh" title="Refresh current symbol" aria-label="Refresh current symbol"><span data-icon="refresh"></span></button></div>
+      </header>
+      <main class="workspace" id="workspace">
+        <section class="instrument" id="instrument" aria-label="Selected instrument"></section>
+        <nav class="tabs" id="tabs" aria-label="Instrument views"></nav>
+        <div id="notice" aria-live="polite"></div>
+        <div id="view"></div>
+        <footer><span>Strikebook · Independent research workspace</span><span>USD where applicable · Market dates in New York time</span></footer>
+      </main>
+    </div>
+  </div>
+  <dialog id="chart-fullscreen" class="chart-fullscreen" aria-label="Fullscreen chart">
+    <div id="chart-fullscreen-content" class="chart-fullscreen-content"></div>
+  </dialog>
+  <dialog id="dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div></dialog>
+  <div id="toast" class="toast" aria-live="polite" hidden></div>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

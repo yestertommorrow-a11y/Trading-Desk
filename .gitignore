@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+*.zip
+*.tar
+*.log
+.strikebook-deps/
+
+.openbb-runtime/

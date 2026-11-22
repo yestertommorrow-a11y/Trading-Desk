@@ -1,0 +1,2 @@
+# Optional native engine for all 61 daily candlestick detectors.
+TA-Lib==0.8.3
