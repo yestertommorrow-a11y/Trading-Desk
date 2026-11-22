@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-set "STRIKEBOOK_HOSTED_ORIGIN=https://strikebook-options-research.browncoast4.chatgpt.site"
+set "STRIKEBOOK_HOSTED_ORIGIN=https://yestertommorrow-a11y.github.io"
 set "STRIKEBOOK_RUNTIME_ARGS="
 set "STRIKEBOOK_LOCAL_RUNTIME=%~dp0.openbb-runtime"
 if exist "%STRIKEBOOK_LOCAL_RUNTIME%\openbb\__init__.py" set STRIKEBOOK_RUNTIME_ARGS=--openbb-runtime "%STRIKEBOOK_LOCAL_RUNTIME%"
