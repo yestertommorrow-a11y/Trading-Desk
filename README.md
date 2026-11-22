@@ -82,3 +82,27 @@ The private hosted interface starts in **Sample mode** with six simulated symbol
 Live requests were verified for delayed Cboe AAPL and QQQ chains, AAPL and SPY quotes and price history, SEC ticker search and filings, and SPY fund metrics and portfolio holdings from SEC N-PORT. A compatibility path addresses a known OpenBB Cboe 2.x whole-chain validation error by recovering contract identifiers through the same installed provider; it retains the original identifiers, reports skipped rows and flags possible adjusted series. Exchange, provider and plan coverage varies; each section shows missing or delayed data rather than substituting synthetic prices in provider mode. N-PORT is periodic disclosure, not current position data. Some endpoints, especially earnings, ratios, distributions and news, depend on Nasdaq responses which were not consistently usable during verification.
 
 See [COVERAGE.md](COVERAGE.md) for the reference comparison and the additional feeds needed for consolidated real-time options, historical option studies, classified order flow, trade prints and marketwide screens.
+
+## Credits
+
+**Included in this repository**
+
+- [TradingView Lightweight Charts](https://github.com/tradingview/lightweight-charts) v5.2.1 draws the candlestick chart. It is bundled unchanged in `dist/vendor` under the Apache License 2.0; see [`dist/vendor/lightweight-charts.LICENSE.txt`](dist/vendor/lightweight-charts.LICENSE.txt).
+
+**Used at run time, installed separately**
+
+- [OpenBB](https://github.com/OpenBB-finance/OpenBB) provides market data through its configured providers.
+- [yfinance](https://github.com/ranaroussi/yfinance) supplies the Yahoo Finance fallback.
+- [TA-Lib](https://github.com/TA-Lib/ta-lib-python) runs the optional candlestick pattern detectors.
+
+**Inspiration**
+
+These projects shaped which features Strikebook offers. Strikebook's code is its own implementation and contains none of theirs.
+
+- [Market Chameleon](https://marketchameleon.com/Learn/SiteFeatures)'s public research workflows inspired the ticker, chain and research layout.
+- [optionlab](https://github.com/rgaveiga/optionlab) by Roberto Gomes inspired the probability-of-profit estimate.
+- Open-source gamma exposure dashboards, such as those under the [gamma-exposure topic](https://github.com/topics/gamma-exposure) on GitHub, inspired the gamma exposure, gamma flip, call and put wall, and max pain views.
+
+## License
+
+Strikebook is released under the [MIT License](LICENSE). The bundled Lightweight Charts library keeps its own Apache License 2.0.
