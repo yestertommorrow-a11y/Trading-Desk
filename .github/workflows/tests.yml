@@ -41,7 +41,7 @@ jobs:
           cache-dependency-path: requirements-patterns.txt
       # Prebuilt wheels include the TA-Lib C library, so the native parity tests run instead of skipping.
       - name: Install TA-Lib
-        run: python -m pip install --only-binary=:all: -r requirements-patterns.txt
+        run: 'python -m pip install --only-binary=:all: -r requirements-patterns.txt'
       - name: Check module syntax
         run: python -m py_compile server.py patterns.py yfinance_compat.py cboe_chain_compat.py build-coverage.py
       - name: Run tests
