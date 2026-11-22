@@ -1,5 +1,7 @@
 # Strikebook
 
+[![Tests](https://github.com/yestertommorrow-a11y/Trading-Desk/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/yestertommorrow-a11y/Trading-Desk/actions/workflows/tests.yml)
+
 Strikebook is a stock, ETF and listed-options research terminal inspired by Market Chameleon's public workflows. It has an original interface and uses OpenBB and its configured providers for market data.
 
 ## Start with OpenBB on Windows
