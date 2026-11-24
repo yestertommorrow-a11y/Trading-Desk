@@ -8,3 +8,6 @@ __pycache__/
 .strikebook-deps/
 
 .openbb-runtime/
+
+# Private Python environment created by the Windows launcher.
+.venv/

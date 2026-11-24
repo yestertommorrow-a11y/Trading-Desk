@@ -1,0 +1,4 @@
+# Live data for Strikebook. The Windows launcher installs these into .venv\ on first run.
+# OpenBB 5.0.0 includes the OpenBB CLI and the Cboe, Nasdaq and SEC providers. It needs Python 3.10-3.13.
+openbb==5.0.0
+yfinance>=0.2.65

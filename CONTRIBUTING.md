@@ -27,7 +27,7 @@ python -B server.py --port 0 --open-browser
 
 Without OpenBB, choose **Data connection → Use sample mode**. Sample mode uses six simulated symbols (SPY, QQQ, AAPL, NVDA, MSFT, IWM), which is enough to work on most of the interface.
 
-**Hosting your own copy.** A hosted page can reach the launcher only from the origin the launcher allows. That origin is set by `STRIKEBOOK_HOSTED_ORIGIN` in `Start Strikebook.cmd` and passed to `server.py --cors-origin`. If you publish a fork, for example to your own GitHub Pages, change it to your site's origin (scheme and host only, such as `https://your-name.github.io`). List several origins separated by commas. On Vercel, `vercel.json` publishes `dist/` with no build step. Also update `repoUrl` in `dist/app.mjs`, which the Data connection dialog uses for its download and setup links.
+**Hosting your own copy.** A hosted page can reach the launcher only from the origin the launcher allows. Those origins are set by `$HostedOrigins` in `launcher/start.ps1` and passed to `server.py --cors-origin`. If you publish a fork, for example to your own GitHub Pages, change it to your site's origin (scheme and host only, such as `https://your-name.github.io`). List several origins separated by commas. On Vercel, `vercel.json` publishes `dist/` with no build step. Also update `repoUrl` in `dist/app.mjs`, which the Data connection dialog uses for its download and setup links.
 
 After editing files in `dist/`, hard-refresh the page (Ctrl+Shift+R). The server sends no cache headers, so the browser can keep old modules.
 
@@ -45,6 +45,7 @@ After editing files in `dist/`, hard-refresh the page (Ctrl+Shift+R). The server
 | `dist/app.mjs` | App state, data loading and events |
 | `dist/research.mjs`, `dist/data.mjs` | Company and fund views; API transport, preferences and sample data |
 | `dist/vendor/` | Third-party code, bundled unchanged |
+| `Start Strikebook.cmd`, `launcher/start.ps1`, `requirements-live.txt` | Windows launcher: first-run setup into `.venv\`, then starts the server |
 
 ## Make a change
 

@@ -308,8 +308,14 @@ class ResearchAPI:
         if not script.is_file() or not cli:
             return None
         cli_path = Path(cli).resolve()
-        neighbor = cli_path.parent.parent / "python.exe" if os.name == "nt" else cli_path.parent / "python"
-        interpreter = env.get("OPTIONS_TERMINAL_OPENBB_PYTHON") or (str(neighbor) if neighbor.is_file() else sys.executable)
+        # The Python that owns the CLI: Scripts\python.exe in a virtual environment, or the
+        # install folder above Scripts\ for a regular Windows install.
+        if os.name == "nt":
+            neighbors = (cli_path.parent / "python.exe", cli_path.parent.parent / "python.exe")
+        else:
+            neighbors = (cli_path.parent / "python",)
+        neighbor = next((path for path in neighbors if path.is_file()), None)
+        interpreter = env.get("OPTIONS_TERMINAL_OPENBB_PYTHON") or (str(neighbor) if neighbor else sys.executable)
         command = [interpreter, "-B", str(script), *arguments]
         try:
             process = subprocess.run(command, env=env, capture_output=True, encoding="utf-8", errors="replace",

@@ -19,14 +19,13 @@ const repoUrl='https://github.com/yestertommorrow-a11y/Trading-Desk';
 const launcherZipUrl=`${repoUrl}/releases/latest/download/Strikebook-windows.zip`;
 const setupGuideUrl=`${repoUrl}#live-data-on-your-pc`;
 const externalLink=(href,text)=>`<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
-const hostedSetup=`<p>Live data comes from Strikebook running on your own Windows PC, using OpenBB and its data providers. This website only displays it; your data and provider settings stay on your PC.</p>
+const hostedSetup=`<p><b>Live data needs a free helper app on your Windows PC.</b> It fetches the market data; this website only shows it.</p>
  <ol class="setup-steps">
-  <li>${externalLink(launcherZipUrl,'Download Strikebook for Windows')} and extract the ZIP.</li>
-  <li>Install Python 3.10 or newer, then run <code>python -m pip install openbb yfinance</code>.</li>
-  <li>Double-click <b>Start Strikebook.cmd</b> and leave its window open.</li>
-  <li>Choose <b>Connect this PC</b> below. Allow local network access if Chrome or Edge asks.</li>
+  <li>${externalLink(launcherZipUrl,'Download Strikebook for Windows')} (a ZIP file).</li>
+  <li>Open your <b>Downloads</b> folder, right-click the ZIP and choose <b>Extract All</b>, then <b>Extract</b>.</li>
+  <li>In the new folder, double-click <b>Start Strikebook.cmd</b>. The first time, it sets itself up (5–15 minutes; answer <b>Y</b> if it offers to install Python). Then Strikebook opens in your browser with live data. <b>Done.</b></li>
  </ol>
- <p class="note">If the launcher prints an address other than 127.0.0.1:8765, enter it and choose <b>Connect bridge</b>. Step-by-step help: ${externalLink(setupGuideUrl,'live data setup guide')}.</p>`;
+ <p class="note">Keep the black Strikebook window open while you use it. To use <i>this</i> website with live data instead, choose <b>Connect this PC</b> below and click <b>Allow</b> when Chrome or Edge asks. Stuck? See the ${externalLink(setupGuideUrl,'step-by-step guide with fixes')}.</p>`;
 const localDashboardLink=`<a class="btn" href="${defaultLoopbackOrigin}/" target="_blank" rel="noopener noreferrer">Open local dashboard</a>`;
 const optional={fundamentals:['profile','financials','dividends','fund','holdings','balance','cash','ratios','filings'],events:['profile','dividends','earnings','earnings-calendar','news']};
 const symbolRe=/^[A-Z0-9][A-Z0-9.\-/^=]{0,23}$/;
@@ -234,15 +233,28 @@ function applyConnection(mode,status){
 async function checkBridge(origin,signal){
  const status=await getApi('status',{},origin,signal);
  if(status.ok&&status.data?.connected===false){
-  return {...status,ok:false,error:{message:'The bridge is running. Add the OpenBB CLI to PATH and restart Start Strikebook.cmd.'}};
+  return {...status,ok:false,error:{message:'Strikebook is running, but its data library (OpenBB) isn’t installed yet. Close the black Strikebook window and double-click Start Strikebook.cmd again; it finishes the setup.'}};
  }
  if(status.ok&&status.data&&typeof status.data.backend==='string')return status;
- if(onLocalPage||isLoopbackOrigin(origin)){
-  return {ok:false,error:{message:onLocalPage
-   ?'The local bridge did not answer. Check that Start Strikebook.cmd is still running, then reconnect.'
-   :'Strikebook isn’t answering at this address. Check that Start Strikebook.cmd is running and enter the address it prints. If your browser blocks the connection, use Open local dashboard instead.'}};
- }
+ if(onLocalPage)return {ok:false,error:{message:'Strikebook stopped answering. Check that the black Strikebook window is still open. If you closed it, double-click Start Strikebook.cmd again, then reconnect.'}};
+ if(isLoopbackOrigin(origin))return {ok:false,error:{message:await loopbackHelp()}};
  return {ok:false,error:{message:'This address did not return a Strikebook bridge status. Check the HTTPS address and its browser access settings.'}};
+}
+
+// Explain, in plain words, why a hosted page could not reach Strikebook on this PC.
+async function loopbackHelp(){
+ const ua=navigator.userAgent;
+ if(/Firefox\//.test(ua)||(/Safari\//.test(ua)&&!/Chrome\/|Chromium\/|Edg\//.test(ua))){
+  return 'This browser can’t let websites talk to apps on your PC. Click “Open local dashboard” below instead (it has live data), or use Chrome or Edge.';
+ }
+ let permission='';
+ for(const name of ['loopback-network','local-network-access','local-network']){
+  try{permission=(await navigator.permissions.query({name})).state;break;}catch{}
+ }
+ if(permission==='denied'){
+  return 'Your browser is blocking this website from reaching Strikebook on your PC. Click the icon at the left of the address bar, open Site settings, set “Local network access” to Allow, reload this page and try again. Or click “Open local dashboard” below.';
+ }
+ return 'Can’t find Strikebook on this PC. 1) Is the black Strikebook window open? If not, double-click Start Strikebook.cmd and wait until your browser opens Strikebook. 2) Downloaded before 24 Nov 2026? Download it again; older copies can’t connect to this website. 3) Still stuck? Click “Open local dashboard” below; it always works while the window is open.';
 }
 
 async function detect(preferred='auto'){
@@ -339,7 +351,9 @@ async function submitConnection(form){
  const controls=[...form.querySelectorAll('button[type=submit], [data-action=connect-local]')];
  controls.forEach(control=>{control.disabled=true;});
  feedback.textContent='';
- message.textContent='Checking the bridge…';
+ message.textContent='Connecting…';
+ // A pending browser permission prompt holds the request; tell the user where to look.
+ const hint=isLoopbackOrigin(origin)&&!onLocalPage?setTimeout(()=>{if(connectionAttempt===controller)message.textContent='Still connecting… If your browser shows a pop-up near the address bar asking to access devices on your local network, click Allow.';},2500):0;
  try{
   const status=await checkBridge(origin,controller.signal);
   if(controller.signal.aborted||!form.isConnected||!$('dialog').open)return;
@@ -350,9 +364,10 @@ async function submitConnection(form){
   $('dialog').close();
   applyConnection('openbb',status);
  }catch{
-  if(controller.signal.reason==='timeout'&&form.isConnected)feedback.textContent='The check timed out. Check the launcher and any pending browser permission, then retry.';
+  if(controller.signal.reason==='timeout'&&form.isConnected)feedback.textContent='No answer after 45 seconds. If your browser asked about local network access, click Allow. Check that the black Strikebook window is open, then click Connect this PC again.';
  }finally{
   clearTimeout(timeout);
+  clearTimeout(hint);
   if(connectionAttempt===controller){
    connectionAttempt=null;
    message.textContent='';
