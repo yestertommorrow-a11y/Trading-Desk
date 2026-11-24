@@ -1,6 +1,8 @@
 # Strikebook Windows launcher. Start Strikebook.cmd runs this script.
-# First run: finds (or offers to install) Python 3.10-3.13, creates a private environment in .venv\
-# and installs OpenBB into it. Every run: starts the local server on port 8765 and opens the browser.
+# First run: finds (or offers to install) Python 3.10-3.13, creates a private environment and installs
+# OpenBB into it. The environment lives in %LOCALAPPDATA%\Strikebook\env (override: set STRIKEBOOK_HOME),
+# NOT in the extracted folder, so the folder can be moved or replaced by a newer download without a reinstall,
+# is not synced by OneDrive, and keeps file paths short. Every run: starts the local server on port 8765.
 # Keep this file ASCII-only: Windows PowerShell 5.1 reads BOM-less scripts in the ANSI code page.
 
 # 'Continue', not 'Stop': Windows PowerShell 5.1 turns pip's stderr warnings into fatal errors under 'Stop'.
@@ -14,12 +16,15 @@ $Host.UI.RawUI.WindowTitle = 'Strikebook'
 
 $HostedOrigins = 'https://yestertommorrow-a11y.github.io,https://trading-desk-ruby-one.vercel.app'
 $Port = 8765
-$Venv = Join-Path $Root '.venv'
+$LocalAppData = if ($env:LOCALAPPDATA) { $env:LOCALAPPDATA } else { Join-Path $env:USERPROFILE 'AppData\Local' }
+$StrikebookHome = if ($env:STRIKEBOOK_HOME) { $env:STRIKEBOOK_HOME } else { Join-Path $LocalAppData 'Strikebook' }
+$Venv = Join-Path $StrikebookHome 'env'
 $VenvPython = Join-Path $Venv 'Scripts\python.exe'
 $VenvOpenBB = Join-Path $Venv 'Scripts\openbb.exe'
 $Requirements = Join-Path $Root 'requirements-live.txt'
 $ReadyMarker = Join-Path $Venv 'strikebook-ready.txt'
-$InstallLog = Join-Path $Root 'strikebook-install.log'
+$InstallLog = Join-Path $StrikebookHome 'install.log'
+$LegacyVenv = Join-Path $Root '.venv'   # where v1.1.0 put it
 
 function Say([string]$Text, [string]$Color = 'Gray') { Write-Host $Text -ForegroundColor $Color }
 function Step([string]$Text) { Write-Host ''; Write-Host ">> $Text" -ForegroundColor Cyan }
@@ -29,7 +34,7 @@ function Fail([string]$Title, [string[]]$Lines) {
     foreach ($line in $Lines) { Write-Host "  $line" -ForegroundColor Yellow }
     Write-Host ''
     Write-Host '  Need help? Open an issue at https://github.com/yestertommorrow-a11y/Trading-Desk/issues' -ForegroundColor Gray
-    Write-Host '  and attach strikebook-install.log from this folder if it exists.' -ForegroundColor Gray
+    Write-Host "  and attach this file if it exists: $InstallLog" -ForegroundColor Gray
     Write-Host ''
     Read-Host '  Press Enter to close this window' | Out-Null
     exit 2  # already paused above; Start Strikebook.cmd only pauses for exit code 1
@@ -104,14 +109,19 @@ function Find-Python {
 }
 
 $venvReady = (Test-Path -LiteralPath $VenvPython) -and (Test-Path -LiteralPath $VenvOpenBB) -and (Test-Path -LiteralPath $ReadyMarker)
-$requirementsHash = (Get-FileHash -LiteralPath $Requirements -Algorithm SHA256).Hash
+# Hash only the real requirement lines, so editing a comment in the file never forces a reinstall.
+$requirementLines = (Get-Content -LiteralPath $Requirements) | ForEach-Object { $_.Trim() } | Where-Object { $_ -and -not $_.StartsWith('#') }
+$sha = [Security.Cryptography.SHA256]::Create()
+$requirementsHash = [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($requirementLines -join "`n")))).Replace('-', '')
 if ($venvReady -and ((Get-Content -LiteralPath $ReadyMarker -Raw).Trim() -ne $requirementsHash)) { $venvReady = $false }
 
 if (-not $venvReady) {
     Say ''
     Say 'First-time setup. This installs OpenBB (the free market-data library Strikebook uses)'
-    Say 'into a private folder inside Strikebook. It changes nothing else on your PC.'
-    Say 'It downloads about 300 MB and takes 5-15 minutes. You only do this once.'
+    Say "into its own private folder: $Venv"
+    Say 'It changes nothing else on your PC. You can move or delete the Strikebook folder later;'
+    Say 'this setup stays put and is reused. It downloads about 300 MB, uses about 1 GB of disk'
+    Say 'space and takes 5-15 minutes. You only do this once.'
 
     Step 'Looking for Python 3.10 - 3.13'
     $python = Find-Python
@@ -144,13 +154,15 @@ if (-not $venvReady) {
     }
     Say "Using Python $($python.Version) at $($python.Path)" 'Green'
 
-    Step 'Creating the private environment (.venv)'
+    Step 'Creating the private environment'
+    New-Item -ItemType Directory -Force -Path $StrikebookHome -ErrorAction SilentlyContinue | Out-Null
     if (Test-Path -LiteralPath $Venv) { Remove-Item -LiteralPath $Venv -Recurse -Force }
     & $python.Path -m venv $Venv
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $VenvPython)) {
         Fail 'Could not create the Python environment.' @(
-            'Try moving the Strikebook folder somewhere simple, such as Documents\Strikebook, and run it again.',
-            'Folders synced by OneDrive or protected by antivirus can block this step.')
+            "Strikebook tried to create it in: $Venv",
+            'Check that your disk has about 1.5 GB free, and that antivirus is not blocking Python.',
+            'To use another drive, set the STRIKEBOOK_HOME environment variable to a folder there (for example D:\Strikebook-data).')
     }
 
     Step 'Installing OpenBB and Yahoo Finance (this is the long part; keep this window open)'
@@ -174,6 +186,12 @@ if (-not $venvReady) {
     & $VenvOpenBB --help *> $null
     Set-Content -LiteralPath $ReadyMarker -Value $requirementsHash -Encoding ASCII
     Say 'Setup complete.' 'Green'
+}
+
+# v1.1.0 installed into .venv inside this folder. It is no longer used; tell the user instead of deleting it for them.
+if (Test-Path -LiteralPath $LegacyVenv) {
+    Say ''
+    Say "Note: the old setup folder $LegacyVenv is no longer used. You can delete it to free disk space." 'Yellow'
 }
 
 # --- 4. Start the server -------------------------------------------------------------------------

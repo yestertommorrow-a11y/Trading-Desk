@@ -23,7 +23,7 @@ const hostedSetup=`<p><b>Live data needs a free helper app on your Windows PC.</
  <ol class="setup-steps">
   <li>${externalLink(launcherZipUrl,'Download Strikebook for Windows')} (a ZIP file).</li>
   <li>Open your <b>Downloads</b> folder, right-click the ZIP and choose <b>Extract All</b>, then <b>Extract</b>.</li>
-  <li>In the new folder, double-click <b>Start Strikebook.cmd</b>. The first time, it sets itself up (5–15 minutes; answer <b>Y</b> if it offers to install Python). Then Strikebook opens in your browser with live data. <b>Done.</b></li>
+  <li>In the new folder, double-click <b>Start Strikebook.cmd</b>. The first time, it downloads and sets up its data library by itself (about 300 MB, 5–15 minutes; answer <b>Y</b> if it offers to install Python). You don’t install anything else. Then Strikebook opens in your browser with live data. <b>Done.</b></li>
  </ol>
  <p class="note">Keep the black Strikebook window open while you use it. To use <i>this</i> website with live data instead, choose <b>Connect this PC</b> below and click <b>Allow</b> when Chrome or Edge asks. Stuck? See the ${externalLink(setupGuideUrl,'step-by-step guide with fixes')}.</p>`;
 const localDashboardLink=`<a class="btn" href="${defaultLoopbackOrigin}/" target="_blank" rel="noopener noreferrer">Open local dashboard</a>`;

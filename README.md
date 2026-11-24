@@ -29,7 +29,7 @@ Strikebook is a desktop research tool first. On a phone you can read the demo an
 
 The website has no data server. Live prices come from a small helper app that runs on **your own Windows PC** and fetches the data with [OpenBB](https://openbb.co), a free market-data library. The website only shows what your PC sends it. Nothing passes through GitHub or Vercel.
 
-You need: a **Windows 10 or 11** PC, an internet connection, about **1.5 GB** of free disk space, and **5–15 minutes** the first time. You don't need to install anything else yourself.
+You need: a **Windows 10 or 11** PC, an internet connection, about **1.5 GB** of free disk space, and **5–15 minutes** the first time. **You don't download or install OpenBB (or Python) yourself.** The first run does it for you, which is where the 5–15 minutes goes: about **300 MB** to download and **1 GB** on disk.
 
 ### Three steps
 
@@ -37,11 +37,13 @@ You need: a **Windows 10 or 11** PC, an internet connection, about **1.5 GB** of
 2. **Extract it.** Open your **Downloads** folder, **right-click** `Strikebook-windows.zip`, choose **Extract All…**, then **Extract**. A new `Strikebook` folder opens.
    *Don't skip this.* Double-clicking files inside the ZIP without extracting won't work.
 3. **Double-click `Start Strikebook.cmd`** in that folder. A black window opens.
-   - **The first time**, it sets itself up: it looks for Python and installs OpenBB into a private folder inside `Strikebook`. If Python isn't installed, it asks **Install Python 3.12 now? [Y/N]**. Type **Y** and press **Enter**.
+   - **The first time**, it sets itself up: it looks for Python and installs OpenBB into its own folder, `%LOCALAPPDATA%\Strikebook\env` (usually `C:\Users\<you>\AppData\Local\Strikebook\env`). If Python isn't installed, it asks **Install Python 3.12 now? [Y/N]**. Type **Y** and press **Enter**.
    - When it's ready, your browser opens Strikebook **with live data**. That's it.
    - **Keep the black window open** while you use Strikebook. Close it to stop.
 
-Next time, just double-click `Start Strikebook.cmd` again. It starts in seconds.
+Next time, just double-click `Start Strikebook.cmd` again. It starts in about five seconds.
+
+**Where you extract the ZIP doesn't matter.** OpenBB is installed in the fixed folder above, not next to `Start Strikebook.cmd`, so you can extract Strikebook anywhere, move or rename the folder, or replace it with a newer download without installing again. Just don't run it from inside the ZIP. To free the 1 GB, delete `%LOCALAPPDATA%\Strikebook`.
 
 **Want to use the website instead of the local page?** With the black window open, go to [the hosted Strikebook](https://trading-desk-ruby-one.vercel.app) in **Chrome or Edge**, choose **Data connection → Connect this PC**, and click **Allow** when the browser asks about devices on your local network.
 
@@ -52,17 +54,17 @@ Next time, just double-click `Start Strikebook.cmd` again. It starts in seconds.
 | **"Windows protected your PC"** or a security warning when you double-click | Click **More info → Run anyway** (or **Run**). The file is a plain-text script; you can open it in Notepad to read it. |
 | The black window says **"Strikebook is running from inside the ZIP file"** | You skipped step 2. Close the window, right-click the ZIP, choose **Extract All**, and run `Start Strikebook.cmd` from the new folder. |
 | **"Python could not be found"** | Install Python 3.12 from [python.org](https://www.python.org/downloads/windows/). On the first installer screen, tick **Add python.exe to PATH**. Then run `Start Strikebook.cmd` again. **Python 3.14 or newer won't work** with OpenBB yet. |
-| **"Installing OpenBB failed"** | Check your internet connection and run `Start Strikebook.cmd` again. Work or school networks sometimes block these downloads, so try a home network. The details are in `strikebook-install.log` in the Strikebook folder. |
+| **"Installing OpenBB failed"** | Check your internet connection and run `Start Strikebook.cmd` again. Work or school networks sometimes block these downloads, so try a home network. The details are in `%LOCALAPPDATA%\Strikebook\install.log`. |
 | The browser opened, but prices say **"Awaiting quote…"** | Wait up to a minute. The very first request after starting is slow. |
 | The website says **"Can't find Strikebook on this PC"** | Make sure the black window is open. If you downloaded Strikebook **before 24 Nov 2026**, download it again. Or click **Open local dashboard**, which always works while the window is open. |
 | The website says your **browser is blocking** the connection | Click the icon at the left of the address bar → **Site settings** → set **Local network access** to **Allow**, then reload. Or use **Open local dashboard**. |
 | You use **Safari or Firefox**, or a **Mac** | Use the local page that opens from the black window. Safari and Firefox can't connect the website to your PC. The launcher is Windows-only; on macOS or Linux see [Advanced setup](#advanced-setup). |
 
-Still stuck? [Open an issue](https://github.com/yestertommorrow-a11y/Trading-Desk/issues) and attach `strikebook-install.log`.
+Still stuck? [Open an issue](https://github.com/yestertommorrow-a11y/Trading-Desk/issues) and attach `%LOCALAPPDATA%\Strikebook\install.log`.
 
 ### Advanced setup
 
-`Start Strikebook.cmd` runs `launcher\start.ps1`. It creates a private Python environment in `.venv\`, installs `requirements-live.txt` (OpenBB 5.0.0 and yfinance) and the optional TA-Lib detectors into it, then starts `server.py` with that environment's `openbb` CLI. Delete `.venv\` to reinstall from scratch. It was tested with Python 3.12 on Windows 11.
+`Start Strikebook.cmd` runs `launcher\start.ps1`. It creates a private Python environment in `%LOCALAPPDATA%\Strikebook\env` (set the `STRIKEBOOK_HOME` environment variable to use another folder or drive), installs `requirements-live.txt` (OpenBB 5.0.0 and yfinance) and the optional TA-Lib detectors into it, then starts `server.py` with that environment's `openbb` CLI. Delete that folder to reinstall from scratch. Copies of Strikebook v1.1.0 kept the environment in `.venv\` inside the extracted folder; that folder is no longer used and can be deleted. It was tested with Python 3.12 on Windows 11.
 
 To use your own OpenBB installation instead (for example, with licensed providers you have configured), run the server directly with that Python. On macOS or Linux, use `python3`:
 

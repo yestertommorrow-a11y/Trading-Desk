@@ -45,7 +45,7 @@ After editing files in `dist/`, hard-refresh the page (Ctrl+Shift+R). The server
 | `dist/app.mjs` | App state, data loading and events |
 | `dist/research.mjs`, `dist/data.mjs` | Company and fund views; API transport, preferences and sample data |
 | `dist/vendor/` | Third-party code, bundled unchanged |
-| `Start Strikebook.cmd`, `launcher/start.ps1`, `requirements-live.txt` | Windows launcher: first-run setup into `.venv\`, then starts the server |
+| `Start Strikebook.cmd`, `launcher/start.ps1`, `requirements-live.txt` | Windows launcher: first-run setup into `%LOCALAPPDATA%\Strikebook\env`, then starts the server |
 
 ## Make a change
 
