@@ -1,12 +1,29 @@
 # Strikebook
 
+[![Release](https://img.shields.io/github/v/release/yestertommorrow-a11y/Trading-Desk?label=release&color=2ea88f)](https://github.com/yestertommorrow-a11y/Trading-Desk/releases/latest)
 [![Tests](https://github.com/yestertommorrow-a11y/Trading-Desk/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/yestertommorrow-a11y/Trading-Desk/actions/workflows/tests.yml)
+[![Live data: Windows PC](https://img.shields.io/badge/live%20data-Windows%20PC-0078d4?logo=windows&logoColor=white)](#live-data-on-your-pc)
+[![Demo: any device](https://img.shields.io/badge/demo-any%20device-2ea88f)](https://trading-desk-ruby-one.vercel.app/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 Strikebook is a stock, ETF and listed-options research terminal inspired by Market Chameleon's public workflows. It has an original interface and uses OpenBB and its configured providers for market data.
+
+**Works on:** the online demo runs on any device, including phones and tablets, with simulated data. **Live market data needs a Windows 10 or 11 PC** with Chrome or Edge. There is no mobile app, and a phone can't run the helper that fetches live data. See [Platforms](#platforms).
 
 ## Try it online
 
 The hosted Strikebook is at **[yestertommorrow-a11y.github.io/Trading-Desk](https://yestertommorrow-a11y.github.io/Trading-Desk/)**. It opens in **sample mode**, with simulated prices and options for six symbols, so you can try every tool without installing anything. A mirror runs on Vercel at [trading-desk-ruby-one.vercel.app](https://trading-desk-ruby-one.vercel.app/). Both are redeployed from `dist/` on every push to `main`. For real market data, follow [Live data on your PC](#live-data-on-your-pc).
+
+## Platforms
+
+| | Online demo (sample data) | Live data |
+|---|---|---|
+| **Windows 10/11 PC** | Yes, any modern browser | **Yes.** Chrome or Edge for the website; any browser for the local page the launcher opens |
+| **Mac or Linux** | Yes | Advanced users only; see [Advanced setup](#advanced-setup) |
+| **Phone or tablet** | **Yes.** The layout adapts to small screens; wide tables scroll sideways | **No.** The helper app that fetches live data runs only on a computer |
+| **Safari or Firefox** | Yes | Use the local page the launcher opens; these browsers can't connect the website to your PC |
+
+Strikebook is a desktop research tool first. On a phone you can read the demo and explore the tools, but the charts and tables are easier to use on a larger screen.
 
 ## Live data on your PC
 
